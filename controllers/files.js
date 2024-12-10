@@ -3,10 +3,8 @@ const db = require('../db');
 
 
 
-
-
 const listFiles = async (req, res) => {
-    const userId = req.query.userId; // Ideally, get this from the authenticated user
+    const userId = req.user.id;
     try {
         const [files] = await db.execute('SELECT * FROM Files WHERE user_id = ?', [userId]);
         res.json(files);
@@ -16,7 +14,7 @@ const listFiles = async (req, res) => {
 };
 
 const uploadFile = async (req, res) => {
-    const userId = req.body.userId; // This should come from the authenticated user
+    const userId = req.user.id;
     const { filename, path, size } = req.file;
 
     try {
