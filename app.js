@@ -4,9 +4,16 @@ const cors = require('cors');
 
 dotenv.config();
 
+const apiLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 30, // Limit each IP to 30 requests
+    message: 'Too many requests, please try again later.',
+});
+
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use('/api/', apiLimiter);
 
 // Routes
 const authRoutes = require('./routes/auth');
