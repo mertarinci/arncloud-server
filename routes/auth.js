@@ -1,5 +1,5 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // Updated to bcryptjs
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10); // bcryptjs works similarly
         const query = 'INSERT INTO Users (username, email, password) VALUES (?, ?, ?)';
         await db.execute(query, [username, email, hashedPassword]);
         res.status(201).json({ message: 'User registered successfully' });
@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password); // bcryptjs works similarly
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
