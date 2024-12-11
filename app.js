@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const rateLimit = require("express-rate-limit")
 
 dotenv.config();
 
@@ -9,6 +10,8 @@ const apiLimiter = rateLimit({
     max: 30, // Limit each IP to 30 requests
     message: 'Too many requests, please try again later.',
 });
+
+
 
 const app = express();
 app.use(express.json());
