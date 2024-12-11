@@ -21,9 +21,11 @@ app.use('/api/', apiLimiter);
 // Routes
 const authRoutes = require('./routes/auth');
 const fileRoutes = require('./routes/files');
+const userRoutes = require('./routes/users');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/users', userRoutes);
 
 app.get("/", (req, res) => {
     res.send("Welcome to Cloud Storage API v.0.2.1");
