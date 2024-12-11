@@ -26,18 +26,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 
 app.get("/", (req, res) => {
-    res.send("Welcome to Cloud Storage API");
+    res.send("Welcome to Cloud Storage API v.0.2");
 })
 
-app.get("/dbtest", async (req, res) => {
-    const db = require('./db');
-    try {
-        const [rows] = await db.execute('SELECT username FROM Users');
-        res.json(rows);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
-});
+
 
 const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
