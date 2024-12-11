@@ -26,7 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 
 app.get("/", (req, res) => {
-    res.send("Welcome to Cloud Storage API v.0.2");
+    res.send("Welcome to Cloud Storage API v.0.2.1");
 })
 
 
