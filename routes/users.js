@@ -2,6 +2,7 @@ const express = require('express');
 const authenticateJWT = require('../middlewares/auth');
 const checkRole = require('../middlewares/user');
 const { updateMaxStorage, getStorageInfo } = require('../controllers/users');
+const router = express.Router();
 
 // Route to update max storage
 router.put('/update-max-storage', authenticateJWT, checkRole('admin'), updateMaxStorage);
