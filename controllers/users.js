@@ -1,3 +1,4 @@
+const db = require('../db');
 
 const getStorageInfo = async (req, res) => {
     const userId = req.user.id;
