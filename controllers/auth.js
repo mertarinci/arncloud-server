@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs'); // Updated to bcryptjs
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 require("dotenv").config();
-const crypto = require("crypto");
+const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 
 const register = async (req, res) => {
@@ -79,7 +79,7 @@ const forgotPassword = async (req, res) => {
         }
 
         // Generate reset token and expiration
-        const resetToken = crypto.randomBytes(32).toString("hex");
+        const resetToken = uuidv4();
         const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
         // Save token and expiry to the database
