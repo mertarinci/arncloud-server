@@ -67,25 +67,41 @@ const downloadFile = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 }
-
 const deleteFile = async (req, res) => {
     const fileId = req.params.id;
     const userId = req.user.id;
 
     try {
-        const [rows] = await db.execute('SELECT * FROM Files WHERE id = ? AND user_id = ?', [fileId, userId]);
+        // Fetch the file to delete
+        const [rows] = await db.execute(
+            'SELECT * FROM Files WHERE id = ? AND user_id = ?',
+            [fileId, userId]
+        );
         if (rows.length === 0) {
             return res.status(404).json({ message: 'File not found or unauthorized' });
         }
 
         const file = rows[0];
-        await fs.unlink(file.path); // Delete file from disk
-        await db.execute('DELETE FROM Files WHERE id = ?', [fileId]); // Remove file record from DB
+
+        // Delete the file from the filesystem
+        await fs.promises.unlink(file.path);
+
+        // Update the user's used storage
+        await db.execute(
+            'UPDATE Users SET used_storage = used_storage - ? WHERE id = ?',
+            [file.size, userId]
+        );
+
+        // Delete the file record from the database
+        await db.execute('DELETE FROM Files WHERE id = ?', [fileId]);
+
         res.status(200).json({ message: 'File deleted successfully' });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 };
+
 
 
 module.exports = { listFiles, uploadFile, downloadFile, deleteFile };
