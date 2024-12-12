@@ -89,7 +89,7 @@ const forgotPassword = async (req, res) => {
         );
 
         // Send email
-        const resetUrl = `https://arncloud.arinci.nl/reset-password/${resetToken}`;
+        const resetUrl = `https://cloud.arinci.nl/reset-password/${resetToken}`;
         await sendResetEmail(user.email, user.username, resetUrl);
 
         res.status(200).json({ message: "Password reset email sent." });
