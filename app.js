@@ -11,11 +11,19 @@ const apiLimiter = rateLimit({
     message: 'Too many requests, please try again later.',
 });
 
+const corsOptions = {
+    origin: "https://cloud.arinci.nl", // Allow this specific origin
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true, // Allow credentials (e.g., cookies, authorization headers)
+};
+
+app.use(cors(corsOptions));
+
 
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+app.use(express.json({ limit: "10gb" }));
+
 app.use('/api/', apiLimiter);
 
 // Routes
