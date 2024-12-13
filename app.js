@@ -2,26 +2,28 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const rateLimit = require("express-rate-limit")
+const fileUpload = require("express-fileupload");
 
 dotenv.config();
+const app = express();
 
 const apiLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 30, // Limit each IP to 30 requests
+    max: 300, // Limit each IP to 300 requests
     message: 'Too many requests, please try again later.',
 });
 
-const corsOptions = {
-    origin: "https://cloud.arinci.nl", // Allow this specific origin
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true, // Allow credentials (e.g., cookies, authorization headers)
-};
+app.use(
+    fileUpload({
+        useTempFiles: false, // Disable temporary files to keep data in memory
+        limits: { fileSize: 10 * 1024 * 1024 * 1024 }, // 10GB file size limit
+    })
+);
 
 
 
-const app = express();
 app.use(express.json({ limit: "10gb" }));
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use('/api/', apiLimiter);
 

@@ -1,6 +1,6 @@
-const multer = require('multer');
 const db = require('../db');
 const path = require('path');
+const uploadToFTP = require('../helpers/ftpUpload');
 const fs = require('fs').promises;
 
 
@@ -15,36 +15,70 @@ const listFiles = async (req, res) => {
     }
 };
 
+// const uploadFile = async (req, res) => {
+//     const userId = req.user.id;
+//     const { filename, path, size } = req.file;
+
+//     try {
+//         // Fetch user's current storage usage and max storage limit
+//         const [user] = await db.execute('SELECT used_storage, max_storage FROM Users WHERE id = ?', [userId]);
+
+//         if (!user[0]) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         const { used_storage, max_storage } = user[0];
+
+//         // Check if the new file exceeds the user's storage limit
+//         if (used_storage + size > max_storage) {
+//             return res.status(400).json({ message: 'Storage limit exceeded' });
+//         }
+
+//         // Insert the file record into the database
+//         const query = 'INSERT INTO Files (user_id, filename, path, size) VALUES (?, ?, ?, ?)';
+//         await db.execute(query, [userId, filename, path, size]);
+
+//         // Update the user's storage usage
+//         const updateStorage = 'UPDATE Users SET used_storage = used_storage + ? WHERE id = ?';
+//         await db.execute(updateStorage, [size, userId]);
+
+//         res.status(201).json({ message: 'File uploaded successfully' });
+//     } catch (err) {
+//         res.status(400).json({ error: err });
+//     }
+// };
+
 const uploadFile = async (req, res) => {
     const userId = req.user.id;
-    const { filename, path, size } = req.file;
+    const { originalname, size, sftpPath } = req.file; // Use values from sftpMiddleware
 
     try {
         // Fetch user's current storage usage and max storage limit
-        const [user] = await db.execute('SELECT used_storage, max_storage FROM Users WHERE id = ?', [userId]);
+        const [user] = await db.execute("SELECT used_storage, max_storage FROM Users WHERE id = ?", [userId]);
 
         if (!user[0]) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const { used_storage, max_storage } = user[0];
 
         // Check if the new file exceeds the user's storage limit
         if (used_storage + size > max_storage) {
-            return res.status(400).json({ message: 'Storage limit exceeded' });
+            return res.status(400).json({ message: "Storage limit exceeded" });
         }
 
-        // Insert the file record into the database
-        const query = 'INSERT INTO Files (user_id, filename, path, size) VALUES (?, ?, ?, ?)';
-        await db.execute(query, [userId, filename, path, size]);
+        // Save file information to the database
+        const query = "INSERT INTO Files (user_id, filename, path, size) VALUES (?, ?, ?, ?)";
+        await db.execute(query, [userId, originalname, sftpPath, size]);
 
         // Update the user's storage usage
-        const updateStorage = 'UPDATE Users SET used_storage = used_storage + ? WHERE id = ?';
+        const updateStorage = "UPDATE Users SET used_storage = used_storage + ? WHERE id = ?";
         await db.execute(updateStorage, [size, userId]);
 
-        res.status(201).json({ message: 'File uploaded successfully' });
+        res.status(201).json({ message: "File uploaded successfully", path: sftpPath });
     } catch (err) {
-        res.status(400).json({ error: err });
+        console.error(err);
+        res.status(500).json({ error: err.message });
     }
 };
 
