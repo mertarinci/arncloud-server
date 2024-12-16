@@ -83,6 +83,57 @@ const uploadFile = async (req, res) => {
 };
 
 
+const uploadChunk = async (req, res) => {
+    try {
+        const { chunkIndex, totalChunks, fileName } = req.body;
+        const chunk = req.files?.chunk;
+
+        if (!chunk || chunk.size === 0) {
+            return res.status(400).json({ message: "Invalid or empty chunk" });
+        }
+
+        console.log("Received chunk details:", {
+            fileName,
+            chunkIndex,
+            totalChunks,
+            chunkSize: chunk.size,
+        });
+
+        // Create a temporary directory for storing chunks
+        const tempDir = path.join(__dirname, "../uploads/temp");
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
+        }
+
+        // Temporary file path (one file per upload)
+        const tempFilePath = path.join(tempDir, `${fileName}.tmp`);
+
+        // Append the chunk to the temporary file
+        fs.appendFileSync(tempFilePath, chunk.data);
+
+        // If it's the last chunk, finalize the file
+        if (parseInt(chunkIndex) === parseInt(totalChunks) - 1) {
+            console.log("All chunks received. Finalizing file...");
+
+            // Move the temporary file to the final directory
+            const finalDir = path.join(__dirname, "../uploads");
+            if (!fs.existsSync(finalDir)) {
+                fs.mkdirSync(finalDir, { recursive: true });
+            }
+
+            const finalFilePath = path.join(finalDir, fileName);
+
+            fs.renameSync(tempFilePath, finalFilePath);
+
+            console.log(`File upload complete: ${finalFilePath}`);
+        }
+
+        res.status(200).json({ message: "Chunk uploaded successfully." });
+    } catch (error) {
+        console.error("Error handling chunk upload:", error);
+        res.status(500).json({ message: "Failed to upload chunk", error: error.message });
+    }
+};
 
 const downloadFile = async (req, res) => {
     const fileId = req.params.id;
@@ -138,4 +189,4 @@ const deleteFile = async (req, res) => {
 
 
 
-module.exports = { listFiles, uploadFile, downloadFile, deleteFile };
+module.exports = { listFiles, uploadFile, downloadFile, deleteFile, uploadChunk };

@@ -2,14 +2,20 @@ const uploadToSFTP = require("../helpers/ftpUpload");
 
 async function sftpMiddleware(req, res, next) {
     try {
-        console.log("Request files received:", req.files); // Debugging incoming files
+        console.log("Request files received:", req.files);
 
         // Ensure that files are present in the request
         if (!req.files || Object.keys(req.files).length === 0) {
             return res.status(400).json({ message: "No files were uploaded." });
         }
 
-        const file = req.files.file; // Match the key "file" from the frontend
+        // Dynamically fetch the first file key
+        const fileKey = Object.keys(req.files)[0];
+        const file = req.files[fileKey];
+
+        if (!file) {
+            return res.status(400).json({ message: "File key is invalid or undefined." });
+        }
 
         // Debugging file information
         console.log("File Info:");
@@ -18,7 +24,7 @@ async function sftpMiddleware(req, res, next) {
         console.log("Data (Buffer Length):", file.data ? file.data.length : "No Data");
 
         // Validate file data
-        if (!file || !file.data || file.data.length === 0) {
+        if (!file.data || file.data.length === 0) {
             return res.status(400).json({ message: "Invalid or empty file data." });
         }
 

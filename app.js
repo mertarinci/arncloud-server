@@ -15,8 +15,9 @@ const apiLimiter = rateLimit({
 
 app.use(
     fileUpload({
-        useTempFiles: false, // Disable temporary files to keep data in memory
-        limits: { fileSize: 10 * 1024 * 1024 * 1024 }, // 10GB file size limit
+        createParentPath: true, // Automatically create parent directories
+        limits: { fileSize: 50 * 1024 * 1024 }, // Limit each chunk to 50MB
+        useTempFiles: false
     })
 );
 

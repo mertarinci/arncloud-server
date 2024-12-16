@@ -6,6 +6,7 @@ const ftpMiddleware = require("../middlewares/ftpMiddleware");
 const router = express.Router();
 
 
+
 // // Configure Multer
 // const storage = multer.diskStorage({
 //     destination: './uploads',
@@ -22,6 +23,8 @@ const router = express.Router();
 //File Upload
 router.post("/upload", authenticateJWT, ftpMiddleware, uploadFile);
 
+//Chunks Upload
+router.post("/upload-chunk", authenticateJWT, ftpMiddleware, uploadFile);
 // List Files
 router.get('/list', authenticateJWT, listFiles);
 
